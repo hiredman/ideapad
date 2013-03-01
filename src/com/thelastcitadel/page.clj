@@ -39,11 +39,13 @@
      [:div {:id "code"
             :style "width:40%;border:1px solid black;height:90%;float:left;"}
       [:textarea {:id "editor"
-                  :style "height:100%;"}
+                  :style "height:100%;"
+                  :autocomplete "off"}
        (or clojurescript "")]
       [:textarea {:id "javascript"
-                  :style "display:none"}
-       (or javascript "none")]]
+                  :style "display:none"
+                  :autocomplete "off"}
+       (or javascript "")]]
      [:div {:id "pad"
             :style "width:50%;height:100%;float:left;margin:3em;"}]
      [:script "boot.main();"]]]))
