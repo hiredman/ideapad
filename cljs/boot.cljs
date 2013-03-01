@@ -63,9 +63,3 @@
     (set! (.-onclick save-button) save))
   (when-let [f (js/eval (.-value (.getElementById js/document "javascript")))]
     (f)))
-
-
-
-
-
-
