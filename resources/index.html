@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <script src="/codemirror-3.1/lib/codemirror.js"></script>
+    <script src="/codemirror-3.1/mode/clojure/clojure.js"></script>
+    <script src="/codemirror-3.1/keymap/emacs.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.js"></script>
+    <script src="/boot.js"></script>
+    <link rel="stylesheet" href="/codemirror-3.1/lib/codemirror.css"/>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap-responsive.css"/>
+  </head>
+  <body>
+    <div style="width:100%">
+      <button id="save">Save</buton>
+    </div>
+    <div id="code"
+         style="width:40%;border:1px solid black;height:100%;float:left;">
+      <textarea id="editor" style="height:100%">
+        (.write js/document "Hello")
+      </textarea>
+      <textarea id="javascript" style="display:none;">
+      </textarea>
+    </div>
+    <div id="pad"
+         style="width:50%;height:100%;float:left;margin:3em;"></div>
+    <script>
+      boot.main();
+    </script>
+  </body>
+</html>
