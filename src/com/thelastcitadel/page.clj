@@ -10,12 +10,22 @@
     [:head
      [:title "ideapad"]
      (include-bootstrap)
-     (include-js "/codemirror-3.1/lib/codemirror.js"
-                 "/codemirror-3.1/mode/clojure/clojure.js"
-                 "/codemirror-3.1/keymap/emacs.js"
+     (include-js "/codemirror/lib/codemirror.js"
+                 "/codemirror/mode/clojure/clojure.js"
+                 "/codemirror/keymap/emacs.js"
                  "http://d3js.org/d3.v3.min.js"
                  "/boot.js")
-     (include-css "/codemirror-3.1/lib/codemirror.css")]
+     (include-css "/codemirror/lib/codemirror.css")
+     [:style "
+.CodeMirror {
+  border: 1px solid #eee;
+  height: auto;
+}
+.CodeMirror-scroll {
+  overflow-y: hidden;
+  overflow-x: auto;
+}
+"]]
     [:body
      [:div {:style "width:100%"}
       [:button {:id "save"} "Save"]
@@ -45,12 +55,12 @@
     [:head
      [:title "ideapad"]
      (include-bootstrap)
-     (include-js "/codemirror-3.1/lib/codemirror.js"
-                 "/codemirror-3.1/mode/clojure/clojure.js"
-                 "/codemirror-3.1/keymap/emacs.js"
+     (include-js "/codemirror/lib/codemirror.js"
+                 "/codemirror/mode/clojure/clojure.js"
+                 "/codemirror/keymap/emacs.js"
                  "http://d3js.org/d3.v3.min.js"
                  "/boot.js")
-     (include-css "/codemirror-3.1/lib/codemirror.css")]
+     (include-css "/codemirror/lib/codemirror.css")]
     [:body
      [:form {:action "/login"
              :method "post"}
