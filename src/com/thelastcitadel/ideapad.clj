@@ -10,7 +10,8 @@
             [com.thelastcitadel.page :refer [page login]]
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]
-            [cemerick.friend.credentials :as creds])
+            [cemerick.friend.credentials :as creds]
+            [carica.core :refer [config]])
   (:import (java.util.concurrent LinkedBlockingQueue)))
 
 (defonce queue (LinkedBlockingQueue.))
@@ -21,7 +22,7 @@
 
 (defn deal-with-nrepl [request]
   (if (= "save" (:op (:params request)))
-    (let [{:keys [body]} (http/put "http://localhost:10001/store"
+    (let [{:keys [body]} (http/put (config :store-url)
                                    {:body
                                     (pr-str
                                      {:clojurescript (or (:clojurescript (:params request))
@@ -35,7 +36,7 @@
        :headers {"Content-Type" "application/json"}})
     (do
       (future
-        (let [{:keys [body]} (http/post "http://localhost:10000/compile"
+        (let [{:keys [body]} (http/post (config :compiler-url)
                                         {:form-params (:params request)
                                          :cookies @cookies})]
           (.put queue body)))
@@ -59,7 +60,7 @@
         :body (login)})
   (ANY "/nrepl" request nrepl-handler)
   (ANY "/pad/:id" request
-       (let [{:keys [body]} (http/get "http://localhost:10001/retrieve"
+       (let [{:keys [body]} (http/get (config :retrieve-url)
                                       {:query-params {:id (:id (:params request))}
                                        :cookies @storage-cookies})
              {:keys [clojurescript javascript]} (read-string body)]
@@ -79,20 +80,18 @@
 (defn init []
   (reset! cookies
           (:cookies
-           (http/post "http://localhost:10000/login"
-                      {:form-params {:username "root"
-                                     :password "password"}
+           (http/post (config :compiler-login-url)
+                      {:form-params (config :compiler-credentials)
                        :follow-redirects false})))
   (reset! storage-cookies
           (:cookies
-           (http/post "http://localhost:10001/login"
-                      {:form-params {:username "root"
-                                     :password "password"}
+           (http/post (config :storage-login-url)
+                      {:form-params (config :storage-credentials)
                        :follow-redirects false})))
   (future
     (try
       (while true
-        (let [{:keys [body]} (http/get "http://localhost:10000/compile" {:cookies @cookies})]
+        (let [{:keys [body]} (http/get (config :compiler-url) {:cookies @cookies})]
           (when (not= body "[\n\n]")
             (.put queue body)))
         (Thread/sleep 500))

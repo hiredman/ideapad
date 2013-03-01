@@ -12,7 +12,8 @@
                  [cheshire "5.0.2"]
                  [hiccup-bootstrap "0.1.1"]
                  [hiccup "1.0.2"]
-                 [com.cemerick/friend "0.1.3"]]
+                 [com.cemerick/friend "0.1.3"]
+                 [sonian/carica "1.0.2"]]
   :plugins [[lein-ring "0.8.3"]
             [lein-cljsbuild "0.3.0"]]
   :ring {:handler com.thelastcitadel.ideapad/handler
