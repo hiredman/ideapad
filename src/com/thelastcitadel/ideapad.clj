@@ -51,6 +51,14 @@
                     :password (creds/hash-bcrypt "password")
                     :roles #{::authenticated}}})
 
+(defn get-pad [request]
+  (let [{:keys [body]} (http/get (config :retrieve-url)
+                                 {:query-params {:id (:id (:params request))}
+                                  :cookies @storage-cookies})
+        {:keys [clojurescript javascript]} (read-string body)]
+    {:status 200
+     :body (page clojurescript javascript)}))
+
 (defroutes app
   (ANY "/" request
        {:status 200
@@ -59,13 +67,7 @@
        {:status 200
         :body (login)})
   (ANY "/nrepl" request nrepl-handler)
-  (ANY "/pad/:id" request
-       (let [{:keys [body]} (http/get (config :retrieve-url)
-                                      {:query-params {:id (:id (:params request))}
-                                       :cookies @storage-cookies})
-             {:keys [clojurescript javascript]} (read-string body)]
-         {:status 200
-          :body (page clojurescript javascript)}))
+  (ANY "/pad/:id" request get-pad)
   (friend/logout
    (ANY "/logout" request (ring.util.response/redirect "/"))))
 
