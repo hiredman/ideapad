@@ -39,7 +39,7 @@
      [:div {:id "code"
             :style "width:40%;border:1px solid black;height:90%;float:left;"}
       [:textarea {:id "editor"
-                  :style "height:100%;"
+                  :style "height:90%;"
                   :autocomplete "off"}
        (or clojurescript "")]
       [:textarea {:id "javascript"
