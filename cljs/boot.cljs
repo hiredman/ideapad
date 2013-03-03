@@ -211,3 +211,18 @@
                         (- domain-end domain-start))]
     (fn [x]
       (+ (* scale-factor (- x domain-start)) range-start))))
+
+(defn line
+  "given a collection of data, and functions to generate x and y cords
+  from data, generates a string of commands to draw a line connecting
+  those points"
+  [data & {:keys [x y]}]
+  (str "M "
+       (apply str
+              (interpose " L "
+                         (map-indexed
+                          (fn [i d]
+                            (str (Math/round (x i d))
+                                 " "
+                                 (Math/round (y i d))))
+                          data)))))
