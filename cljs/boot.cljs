@@ -183,28 +183,29 @@
 ;;              :x (fn [i d] i)
 ;;              :y (fn [i d] d)})
 
-(defn svg* [thing]
+(defn svg [thing]
   (cond
    (string? thing) thing
-   (seq? thing) (apply str (map svg* thing))
+   (seq? thing) (apply str (map svg thing))
    :else (let [[tag atrs? & content] thing
                [attrs content] (if (map? atrs?)
                                  [atrs? content]
                                  [atrs? (cons atrs? content)])]
-           (str "<" (name tag) " "
-                (apply str
-                       (interpose \space
-                                  (for [[n v] attrs]
-                                    (str (name n) "=" (pr-str v)))))
-                ">"
-                (apply str (map svg* content))
-                "</" (name tag) ">"))))
+           (str
+            (when (= tag :svg)
+              "<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+            "<" (name tag) " "
+            (apply str
+                   (interpose \space
+                              (for [[n v] attrs]
+                                (str (name n) "=" (pr-str v)))))
+            ">"
+            (apply str (map svg content))
+            "</" (name tag) ">"))))
 
-(defn svg [thing]
-  (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-       (svg* thing)))
-
-(defn linear-scale [& {[domain-start domain-end] :domain
+(defn linear-scale
+  "returns a function that will scale a value from the given domain to the given range"
+  [& {[domain-start domain-end] :domain
                        [range-start range-end] :range}]
   (let [scale-factor (/ (- range-end range-start)
                         (- domain-end domain-start))]
