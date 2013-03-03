@@ -182,3 +182,24 @@
 ;;              :margin 20
 ;;              :x (fn [i d] i)
 ;;              :y (fn [i d] d)})
+
+(defn svg* [thing]
+  (cond
+   (string? thing) thing
+   (seq? thing) (apply str (map svg* thing))
+   :else (let [[tag atrs? & content] thing
+               [attrs content] (if (map? atrs?)
+                                 [atrs? content]
+                                 [atrs? (cons atrs? content)])]
+           (str "<" (name tag) " "
+                (apply str
+                       (interpose \space
+                                  (for [[n v] attrs]
+                                    (str (name n) "=" (pr-str v)))))
+                ">"
+                (apply str (map svg* content))
+                "</" (name tag) ">"))))
+
+(defn svg [thing]
+  (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+       (svg* thing)))
