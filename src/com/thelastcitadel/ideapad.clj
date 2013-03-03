@@ -11,10 +11,20 @@
             [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]
             [cemerick.friend.credentials :as creds]
-            [carica.core :refer [config]])
-  (:import (java.util.concurrent LinkedBlockingQueue)))
+            [carica.core :refer [config]]
+            [clojure.pprint :as p])
+  (:import (java.util.concurrent LinkedBlockingQueue
+                                 ConcurrentHashMap)
+           (java.util UUID)))
 
-(defonce queue (LinkedBlockingQueue.))
+(defonce queues (agent {}))
+
+(set-error-handler! queues (fn [_ e]
+                             (.printStackTrace e)))
+
+(add-watch queues :print (fn [k r ov nv]
+                           (when-not (= ov nv)
+                             (p/pprint nv))))
 
 (defonce cookies (atom nil))
 
@@ -34,15 +44,32 @@
                             :status ["done"]
                             :storage-id body}])
        :headers {"Content-Type" "application/json"}})
-    (do
-      (future
-        (let [{:keys [body]} (http/post (config :compiler-url)
-                                        {:form-params (:params request)
-                                         :cookies @cookies})]
-          (.put queue body)))
-      {:body (or (doto (.poll queue 1 java.util.concurrent.TimeUnit/SECONDS) prn)
-                 "[]")
-       :headers {"Content-Type" "application/json"}})))
+    (let [queue-id (or (:queue-id (:session request))
+                       (str (UUID/randomUUID)))
+          {:keys [received]} (get @queues (:queue-id (:session request)))]
+      (send-off queues (fn f [queues]
+                         (if (contains? queues queue-id)
+                           (let [{{:keys [cookies received]} queue-id} queues
+                                 {:keys [body]} (http/post (config :compiler-url)
+                                                           {:form-params (:params request)
+                                                            :cookies cookies})]
+                             (.put received body)
+                             queues)
+                           (let [{:keys [cookies]} (http/post (config :compiler-login-url)
+                                                              {:form-params (config :compiler-credentials)
+                                                               :follow-redirects false})]
+                             (prn "send compile request")
+                             (send-off *agent* f)
+                             (update-in queues [queue-id] merge
+                                        {:cookies cookies
+                                         :received (LinkedBlockingQueue.)})))))
+      {:body (doto (or (when received
+                         (.poll received 1 java.util.concurrent.TimeUnit/SECONDS))
+                       "[]")
+               prn)
+       :headers {"Content-Type" "application/json"}
+       :session (assoc (:session request)
+                  :queue-id queue-id)})))
 
 (def nrepl-handler (-> deal-with-nrepl
                        (friend/wrap-authorize #{::authenticated})))
@@ -90,12 +117,16 @@
            (http/post (config :storage-login-url)
                       {:form-params (config :storage-credentials)
                        :follow-redirects false})))
-  (future
-    (try
-      (while true
-        (let [{:keys [body]} (http/get (config :compiler-url) {:cookies @cookies})]
-          (when (not= body "[\n\n]")
-            (.put queue body)))
-        (Thread/sleep 500))
-      (catch Throwable t
-        (prn t)))))
+  (send-off queues (fn this-fn [queues]
+                     (send-off *agent* this-fn)
+                     (doseq [[k v] queues]
+                       (send-off *agent*
+                                 (fn [queues]
+                                   (let [{{:keys [cookies received]} k} queues]
+                                     (when received
+                                       (let [{:keys [body]} (http/get (config :compiler-url) {:cookies cookies})]
+                                         (when (not= body "[\n\n]")
+                                           (.put received body)))))
+                                   queues)))
+                     (Thread/sleep 100)
+                     queues)))
