@@ -1,5 +1,8 @@
 (ns boot
-  (:require [drawbridge.client :as repl]))
+  (:require [drawbridge.client :as repl]
+            [goog.events :as events]
+            [goog.net.XhrIo]
+            [goog.Uri.QueryData]))
 
 (def pad)
 
@@ -56,13 +59,31 @@
                  (when (= "done" (aget (get (last v) "status") 0))
                    (set! (.-location js/window) (str "/pad/" (get (first v) "storage-id"))))))))
 
+(defn ^:export try-login []
+  (let [username (.getElementById js/document "username")
+        password (.getElementById js/document "password")]
+    (let [request (goog.net.XhrIo.)]
+    (events/listen request "complete"
+                   (fn [e]
+                     (when (not= "false" (.getResponseHeader request "X-In-Like-Flynn"))
+                       (doto (.getElementById js/document "loggedin")
+                         (-> .-innerHTML (set! "logged in"))
+                         (.setAttribute "class" "text-success")))
+                     (.dispose request)))
+    (.send request "/login" "POST"
+           (.toString
+            (doto (goog.Uri.QueryData.)
+              (.add "username" (.-value username))
+              (.add "password" (.-value password))))))))
+
 (defn ^:export main []
   (set! pad (.getElementById js/document "pad"))
   (setup-code)
   (let [save-button (.getElementById js/document "save")]
     (set! (.-onclick save-button) save))
   (when-let [f (js/eval (.-value (.getElementById js/document "javascript")))]
-    (f)))
+    (f))
+  (try-login))
 
 (def colors
   ["steelblue" "green" "darkorange" "PaleVioletRed" "OliveDrab" "LightSteelBlue" "Indigo"

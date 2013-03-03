@@ -99,6 +99,13 @@
    (ANY "/logout" request (ring.util.response/redirect "/"))))
 
 (def handler (-> #'app
+                 ((fn [f]
+                    (fn [req]
+                      (let [r (f req)]
+                        (update-in r [:headers]
+                                   assoc "X-In-Like-Flynn"
+                                   (str (boolean (friend/authorized? #{::authenticated}
+                                                                     friend/*identity*))))))))
                  (friend/authenticate
                   {:credential-fn (partial creds/bcrypt-credential-fn users)
                    :workflows [(workflows/interactive-form)]})

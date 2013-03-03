@@ -25,17 +25,30 @@
   overflow-y: hidden;
   overflow-x: auto;
 }
+
+.text-success {
+color:#468847;
+}
+ .text-error {
+color:#b94a48;
+}
 "]]
     [:body
      [:div {:style "width:100%"}
       [:button {:id "save"} "Save"]
-      [:span {:style "padding-left:2em;"}
+      [:span {:style "padding-left:2em;padding-right:2em;"}
        [:input {:type "text"
                 :name "username"
-                :style "height:1.8em;width:10em;"}]
+                :style "height:1.8em;width:10em;"
+                :id "username"}]
        [:input {:type "password"
                 :name "password"
-                :style "height:1.8em;width:10em;"}]]]
+                :style "height:1.8em;width:10em;"
+                :id "password"
+                :onChange "boot.try_login()"}]]
+      [:span {:id "loggedin"
+              :class "text-error"}
+       "not logged in"]]
      [:div {:id "code"
             :style "width:40%;border:1px solid black;height:90%;float:left;"}
       [:textarea {:id "editor"
