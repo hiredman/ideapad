@@ -203,3 +203,10 @@
 (defn svg [thing]
   (str "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
        (svg* thing)))
+
+(defn linear-scale [& {[domain-start domain-end] :domain
+                       [range-start range-end] :range}]
+  (let [scale-factor (/ (- range-end range-start)
+                        (- domain-end domain-start))]
+    (fn [x]
+      (+ (* scale-factor (- x domain-start)) range-start))))
