@@ -63,18 +63,18 @@
   (let [username (.getElementById js/document "username")
         password (.getElementById js/document "password")]
     (let [request (goog.net.XhrIo.)]
-    (events/listen request "complete"
-                   (fn [e]
-                     (when (not= "false" (.getResponseHeader request "X-In-Like-Flynn"))
-                       (doto (.getElementById js/document "loggedin")
-                         (-> .-innerHTML (set! "logged in"))
-                         (.setAttribute "class" "text-success")))
-                     (.dispose request)))
-    (.send request "/login" "POST"
-           (.toString
-            (doto (goog.Uri.QueryData.)
-              (.add "username" (.-value username))
-              (.add "password" (.-value password))))))))
+      (events/listen request "complete"
+                     (fn [e]
+                       (when (not= "false" (.getResponseHeader request "X-In-Like-Flynn"))
+                         (doto (.getElementById js/document "loggedin")
+                           (-> .-innerHTML (set! "logged in"))
+                           (.setAttribute "class" "text-success")))
+                       (.dispose request)))
+      (.send request "/login" "POST"
+             (.toString
+              (doto (goog.Uri.QueryData.)
+                (.add "username" (.-value username))
+                (.add "password" (.-value password))))))))
 
 (defn ^:export main []
   (set! pad (.getElementById js/document "pad"))
