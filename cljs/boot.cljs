@@ -206,11 +206,25 @@
 (defn linear-scale
   "returns a function that will scale a value from the given domain to the given range"
   [& {[domain-start domain-end] :domain
-                       [range-start range-end] :range}]
+      [range-start range-end] :range
+      :as m}]
   (let [scale-factor (/ (- range-end range-start)
                         (- domain-end domain-start))]
-    (fn [x]
-      (+ (* scale-factor (- x domain-start)) range-start))))
+    (fn
+      ([] m)
+      ([x]
+         (when-not (>= (max domain-start domain-end)
+                       x
+                       (min domain-start domain-end))
+           (js/alert (str x " is outisde of the domain for this scale"))
+           (throw (str x " is outisde of the domain for this scale")))
+         (let [r (+ (* scale-factor (- x domain-start)) range-start)]
+           (when-not (>= (max range-start range-end)
+                         r
+                         (min range-start range-end))
+             (js/alert (str r " is outisde of the range for this scale"))
+             (throw (str r " is outisde of the range for this scale")))
+           r)))))
 
 (defn line
   "given a collection of data, and functions to generate x and y cords
