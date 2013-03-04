@@ -26,20 +26,19 @@
                            (when-not (= ov nv)
                              (p/pprint nv))))
 
-(defonce cookies (atom nil))
-
-(defonce storage-cookies (atom nil))
-
 (defn deal-with-nrepl [request]
   (if (= "save" (:op (:params request)))
-    (let [{:keys [body]} (http/put (config :store-url)
+    (let [{:keys [cookies]} (http/post (config :storage-login-url)
+                                       {:form-params (config :storage-credentials)
+                                        :follow-redirects false})
+          {:keys [body]} (http/put (config :store-url)
                                    {:body
                                     (pr-str
                                      {:clojurescript (or (:clojurescript (:params request))
                                                          "")
                                       :javascript (or (:javascript (:params request))
                                                       "")})
-                                    :cookies @storage-cookies})]
+                                    :cookies cookies})]
       {:body (json/encode [{:id (:id (:params request))
                             :status ["done"]
                             :storage-id body}])
@@ -83,9 +82,12 @@
     (read-string body)))
 
 (defn get-pad [request]
-  (let [{:keys [body]} (http/get (config :retrieve-url)
+  (let [{:keys [cookies]} (http/post (config :storage-login-url)
+                                     {:form-params (config :storage-credentials)
+                                      :follow-redirects false})
+        {:keys [body]} (http/get (config :retrieve-url)
                                  {:query-params {:id (:id (:params request))}
-                                  :cookies @storage-cookies})
+                                  :cookies cookies})
         {:keys [clojurescript javascript]} (read-string body)]
     {:status 200
      :body (page clojurescript javascript)}))
@@ -118,16 +120,6 @@
                  wrap-bootstrap-resources))
 
 (defn init []
-  (reset! cookies
-          (:cookies
-           (http/post (config :compiler-login-url)
-                      {:form-params (config :compiler-credentials)
-                       :follow-redirects false})))
-  (reset! storage-cookies
-          (:cookies
-           (http/post (config :storage-login-url)
-                      {:form-params (config :storage-credentials)
-                       :follow-redirects false})))
   (send-off queues (fn this-fn [queues]
                      (send-off *agent* this-fn)
                      (doseq [[k v] queues]
