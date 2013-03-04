@@ -74,9 +74,13 @@
 (def nrepl-handler (-> deal-with-nrepl
                        (friend/wrap-authorize #{::authenticated})))
 
-(def users {"root" {:username "root"
-                    :password (creds/hash-bcrypt "password")
-                    :roles #{::authenticated}}})
+(defn users [username]
+  (let [{:keys [cookies]} (http/post (config :user-login-url)
+                                     {:form-params (config :user-credentials)
+                                      :follow-redirects false})
+        {:keys [body]} (http/get (str (config :user-url) username)
+                                 {:cookies cookies})]
+    (read-string body)))
 
 (defn get-pad [request]
   (let [{:keys [body]} (http/get (config :retrieve-url)

@@ -6,4 +6,8 @@
  :storage-credentials {:username "root"
                        :password "password"}
  :compiler-credentials {:username "root"
-                        :password "password"}}
+                        :password "password"}
+ :user-url "http://localhost:10002/user/"
+ :user-login-url "http://localhost:10002/login"
+ :user-credentials {:username "root"
+                    :password "password"}}
