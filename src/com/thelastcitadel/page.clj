@@ -65,7 +65,7 @@ color:#b94a48;
                   :autocomplete "off"}
        (or javascript "")]]
      [:div {:id "pad"
-            :style "width:50%;height:100%;float:left;margin:3em;"}]
+            :style "width:50%;height:90%;float:left;margin-left:3em;"}]
      (include-js "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_SVG"
                  "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
      [:script "boot.main();"]]]))
