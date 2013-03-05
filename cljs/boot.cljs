@@ -267,3 +267,14 @@
                  "src=\"http://www.youtube.com/embed/" yt-id "\" "
                  "frameborder=\"0\" allowfullscreen></iframe>"))
       div)))
+
+(defn TeX [text-or-dom]
+  (if (string? text-or-dom)
+    (fn [dom]
+      (let [s (.createElement js/document "div")]
+        (.appendChild dom s)
+        (set! (.-innerHTML s) text-or-dom)
+        (TeX s)))
+    (do
+      (.Queue (.-Hub js/MathJax) (array "Typeset" (.-Hub js/MathJax) text-or-dom))
+      text-or-dom)))
