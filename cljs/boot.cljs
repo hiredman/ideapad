@@ -278,3 +278,8 @@
     (do
       (.Queue (.-Hub js/MathJax) (array "Typeset" (.-Hub js/MathJax) text-or-dom))
       text-or-dom)))
+
+(defn population-variance [pop]
+  (let [mean (/ (apply + pop) (count pop))]
+    (/ (apply + (map (fn [x] (* (- x mean) (- x mean))) pop))
+       (count pop))))
