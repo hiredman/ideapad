@@ -6,6 +6,8 @@
 
 (def pad)
 
+(def jquery (js* "$"))
+
 (defn ^:export load-js [url]
   (.appendChild
    (aget (.getElementsByTagName js/document "head") 0)
