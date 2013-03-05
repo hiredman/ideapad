@@ -241,3 +241,9 @@
                                  " "
                                  (Math/round (y i d))))
                           data)))))
+
+(defn axis [[min-x max-x] [min-y max-y]]
+  (str "M " min-x " " min-y
+       "L " min-x " " max-y
+       "M " min-x " " min-y
+       "L " max-x " " min-y))
