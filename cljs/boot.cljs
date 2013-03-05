@@ -190,10 +190,10 @@
    :else (let [[tag atrs? & content] thing
                [attrs content] (if (map? atrs?)
                                  [atrs? content]
-                                 [atrs? (cons atrs? content)])]
+                                 [{} (cons atrs? content)])]
            (str
-            (when (= tag :svg)
-              "<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+            #_(when (= tag :svg)
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
             "<" (name tag) " "
             (apply str
                    (interpose \space
