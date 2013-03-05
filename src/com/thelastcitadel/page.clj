@@ -11,9 +11,14 @@
      [:title "ideapad"]
      (include-bootstrap)
      (include-js "/codemirror/lib/codemirror.js"
+                 "/codemirror/addon/edit/closebrackets.js"
                  "/codemirror/mode/clojure/clojure.js"
                  "/codemirror/keymap/emacs.js"
+                 "/codemirror/addon/edit/matchbrackets.js"
                  "http://d3js.org/d3.v3.min.js"
+                 "//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"
+                 "//ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js"
+                 "//ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/jquery-ui.min.js"
                  "/boot.js")
      (include-css "/codemirror/lib/codemirror.css")
      [:style "
@@ -61,6 +66,8 @@ color:#b94a48;
        (or javascript "")]]
      [:div {:id "pad"
             :style "width:50%;height:100%;float:left;margin:3em;"}]
+     (include-js "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_SVG"
+                 "http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
      [:script "boot.main();"]]]))
 
 
