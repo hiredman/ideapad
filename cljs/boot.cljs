@@ -65,7 +65,8 @@
     (let [request (goog.net.XhrIo.)]
       (events/listen request "complete"
                      (fn [e]
-                       (when (not= "false" (.getResponseHeader request "X-In-Like-Flynn"))
+                       (when (and (.getResponseHeader request "X-In-Like-Flynn")
+                                  (not= "false" (.getResponseHeader request "X-In-Like-Flynn")))
                          (doto (.getElementById js/document "loggedin")
                            (-> .-innerHTML (set! "logged in"))
                            (.setAttribute "class" "text-success")))
