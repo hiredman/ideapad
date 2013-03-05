@@ -247,3 +247,9 @@
        "L " min-x " " max-y
        "M " min-x " " min-y
        "L " max-x " " min-y))
+
+(defn ticks [scale]
+  (let [{[rs re] :range} (scale)
+        r (- re rs)]
+    (fn [n]
+      (range rs (inc re) (Math/round (/ r n))))))
