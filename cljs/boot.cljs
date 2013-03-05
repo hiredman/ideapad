@@ -253,3 +253,15 @@
         r (- re rs)]
     (fn [n]
       (range rs (inc re) (Math/round (/ r n))))))
+
+(defn youtube [yt-id]
+  (fn [dom & {:keys [id]}]
+    (let [div (.createElement js/document "div")]
+      (.appendChild dom div)
+      (when id
+        (.setAtribute div "id" id))
+      (set! (.-innerHTML div)
+            (str "<iframe width=\"800\" height=\"450\" "
+                 "src=\"http://www.youtube.com/embed/" yt-id "\" "
+                 "frameborder=\"0\" allowfullscreen></iframe>"))
+      div)))
