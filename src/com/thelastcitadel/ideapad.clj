@@ -90,14 +90,17 @@
                                   :cookies cookies})
         {:keys [clojurescript javascript]} (read-string body)]
     {:status 200
-     :body (page clojurescript javascript)}))
+     :body (page clojurescript javascript)
+     :headers {"content-type" "text/html"}}))
 
 (defroutes app
   (ANY "/" request
        {:status 200
-        :body (page "" "")})
+        :body (page "" "")
+        :headers {"content-type" "text/html"}})
   (ANY "/login" request
        {:status 200
+        :headers {"content-type" "text/html"}
         :body (login)})
   (ANY "/nrepl" request nrepl-handler)
   (ANY "/pad/:id" request get-pad)
