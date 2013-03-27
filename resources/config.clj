@@ -7,7 +7,9 @@
                        :password "password"}
  :compiler-credentials {:username "root"
                         :password "password"}
- :user-url "http://localhost:10002/user/"
  :user-login-url "http://localhost:10002/login"
  :user-credentials {:username "root"
-                    :password "password"}}
+                    :password "password"}
+ :user-config-url "http://localhost:10002/"
+ :user-db-url ""
+ :user-db-table "users"}

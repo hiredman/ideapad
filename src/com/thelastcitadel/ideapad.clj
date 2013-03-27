@@ -73,11 +73,26 @@
 (def nrepl-handler (-> deal-with-nrepl
                        (friend/wrap-authorize #{::authenticated})))
 
-(defn users [username]
+(def users-service-url (atom nil))
+
+(defn users-configure []
   (let [{:keys [cookies]} (http/post (config :user-login-url)
                                      {:form-params (config :user-credentials)
                                       :follow-redirects false})
-        {:keys [body]} (http/get (str (config :user-url) username)
+        {:keys [trace-redirects]
+         {:strs [location]} :headers} (http/post (config :user-config-url)
+                                                 {:cookies cookies
+                                                  :form-params {:jdbc-url (config :user-db-url)
+                                                                :table (config :user-db-table)}})]
+    (reset! users-service-url (str (config :user-config-url) location))))
+
+(defn users [username]
+  (when-not @users-service-url
+    (users-configure))
+  (let [{:keys [cookies]} (http/post (config :user-login-url)
+                                     {:form-params (config :user-credentials)
+                                      :follow-redirects false})
+        {:keys [body]} (http/get (str @users-service-url "/" username)
                                  {:cookies cookies})]
     (read-string body)))
 
