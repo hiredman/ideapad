@@ -84,7 +84,10 @@
                                                  {:cookies cookies
                                                   :form-params {:jdbc-url (config :user-db-url)
                                                                 :table (config :user-db-table)}})]
-    (reset! users-service-url (str (config :user-config-url) location))))
+    (reset! users-service-url (str (config :user-config-url)
+                                   (if (.startsWith location "/")
+                                     (subs location 1)
+                                     location)))))
 
 (defn users [username]
   (when-not @users-service-url
