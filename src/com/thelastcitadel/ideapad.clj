@@ -99,17 +99,51 @@
                                  {:cookies cookies})]
     (read-string body)))
 
-(defn get-pad [request]
+(defn lru [fun]
+  (let [cache (agent {})]
+    (add-watch cache :cache-eviction
+               (fn [k r ov nv]
+                 (locking #'println
+                   (println (keys nv)))
+                 (when (> (count nv) 100)
+                   (send-off r
+                             (fn [m]
+                               (if (> (count m) 100)
+                                 (into {} (take 100 (sort-by (comp (partial * -1) first val) m)))
+                                 m))))))
+    (fn [& args]
+      (let [c @cache]
+        (if (contains? c args)
+          (do
+            (locking #'println
+              (println "cache hit"))
+            ;; race, needs a double check
+            (send-off cache update-in [args] assoc 0 (System/currentTimeMillis))
+            (second (get c args)))
+          (let [result (apply fun args)]
+            (send-off cache assoc args [(System/currentTimeMillis) result])
+            result))))))
+
+(defn get-stuff [id]
   (let [{:keys [cookies]} (http/post (config :storage-login-url)
                                      {:form-params (config :storage-credentials)
                                       :follow-redirects false})
         {:keys [body]} (http/get (config :retrieve-url)
-                                 {:query-params {:id (:id (:params request))}
-                                  :cookies cookies})
-        {:keys [clojurescript javascript]} (read-string body)]
-    {:status 200
-     :body (page clojurescript javascript)
-     :headers {"content-type" "text/html"}}))
+                                 {:query-params {:id id}
+                                  :cookies cookies})]
+    (read-string body)))
+
+(defn pad-page [id]
+  (let [{:keys [clojurescript javascript]} (get-stuff id)]
+    (.getBytes (page clojurescript javascript))))
+
+(alter-var-root #'pad-page lru)
+
+(defn get-pad [request]
+  {:status 200
+   :body (java.io.ByteArrayInputStream.
+          (pad-page (:id (:params request))))
+   :headers {"content-type" "text/html"}})
 
 (defroutes app
   (ANY "/" request
