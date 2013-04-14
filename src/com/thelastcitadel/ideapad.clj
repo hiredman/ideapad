@@ -76,7 +76,7 @@
 (def users-service-url (atom nil))
 
 (defn users-configure []
-  (let [{:keys [cookies]} (http/post (str config :user-config-url "login")
+  (let [{:keys [cookies]} (http/post (str (config :user-config-url) "login")
                                      {:form-params (config :user-credentials)
                                       :follow-redirects false})
         {:keys [trace-redirects]
@@ -92,7 +92,7 @@
 (defn users [username]
   (when-not @users-service-url
     (users-configure))
-  (let [{:keys [cookies]} (http/post (str config :user-config-url "login")
+  (let [{:keys [cookies]} (http/post (str (config :user-config-url) "login")
                                      {:form-params (config :user-credentials)
                                       :follow-redirects false})
         {:keys [body]} (http/get (str @users-service-url "/" username)
